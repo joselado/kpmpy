@@ -36,7 +36,7 @@ x2 = np.linspace(-3.,3.,100) # energies
 delta = .02 # smearing
 y2 = [((m.todense() - (x+1j*delta)*iden).I)[sitei,sitej] for x in x2]
 y2 = np.array(y2) # in array form
-y2r,y2i = y2.real,y2.imag # real and imaginary parts
+y2r,y2i = -y2.real,y2.imag # real and imaginary parts
 plt.scatter(x2,y2r,label="GF, real",c="red")
 plt.scatter(x2,y2i,label="GF, imag",c="blue")
 

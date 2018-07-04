@@ -18,7 +18,7 @@ data = np.zeros(cols.shape[0]) + 1. # tight binding parameter
 
 m = csc_matrix((data,(rows,cols)),shape=(n,n)) # create the sparse matrix
 
-site = n/2 # the entry where you want the dos, n/2 is an atom in the middle
+site = n//2 # the entry where you want the dos, n/2 is an atom in the middle
 scale = 4.0 # this number has to be such that max(|eigenvalues|)/scale < 1
 npol = 100 # number of polynomials, energy resolution goes as 1/npol
 ne = 300 # number of energies to calculate (between -scale and scale)

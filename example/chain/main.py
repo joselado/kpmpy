@@ -1,5 +1,5 @@
 import sys
-sys.path.append("../src") # path to KPM library
+sys.path.append("../../src") # path to KPM library
 import kpm  # library with the kernel polynomial method
 import matplotlib.pyplot as plt
 from scipy.sparse import csc_matrix # class for sparse matrices
@@ -11,7 +11,7 @@ import time
 ## this a test with a 1d tight binding model ##
 ###############################################
 compare = False # compare with the normal method
-n = 200000 # dimension of the matrix
+n = 1000 # dimension of the matrix
 print("Dimension of the matrix",n)
 ii = np.arange(0,n-2) # indexes from 0 to n-2
 cols = np.concatenate([ii,ii+1]) # index for rows

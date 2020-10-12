@@ -25,18 +25,15 @@ npol = 300 # number of polynomials, energy resolution goes as 1/npol
 ne = 300 # number of energies to calculate (between -scale and scale)
 # returns energies and dos
 
-t0 = time.clock()
-mus = kpm.local_dos(m/10.0,i=0,n=100)
+# this function computes the different moments using the KPM
+mus = kpm.get_moments_ldos(m,i=site,n=npol,scale=scale)
+
+# once you have the moments, you can reconstruct the DOS
+# using the Chebyshev relations
 x = np.linspace(-0.9,0.9,400)
-y = kpm.generate_profile(mus.real,x,kernel="jackson")
-t1 = time.clock()
-
-print("Time in computation",t1-t0)
-
-# uncomment this if you want total DOS instead of local DOS
-#ntries = 20 # number of stochastic vectors, with a few is fine
-#(x1,y1) = kpm.tdos0d(m,i=site,scale=scale,npol=npol,ne=ne,ntries=ntries) 
+y = kpm.generate_profile(mus.real,x,kernel="jackson").real
 
 
-plt.plot(x,y) # plot this dos
+# plot the result
+plt.plot(x*scale,y/scale) # plot this dos
 plt.show()

@@ -13,7 +13,7 @@ try:
   use_fortran = True
 except:
   use_fortran = False # use python routines
-  print("FORTRAN library not present, using default python one")
+#  print("FORTRAN library not present, using default python one")
 
 
 
@@ -36,18 +36,20 @@ def get_moments(v,m,n=100,use_fortran=use_fortran,test=False):
 
 def python_kpm_moments(v,m,n=100):
   """Python routine to calculate moments"""
+  v = v.todense() # turn to matrix form
+  v = np.array(v).reshape(v.shape[0])
   mus = np.array([0.0j for i in range(2*n)]) # empty arrray for the moments
   am = v.copy() # zero vector
   a = m*v  # vector number 1
-  bk = (np.transpose(np.conjugate(v))*v)[0,0] # scalar product
-  bk1 = (np.transpose(np.conjugate(a))*v)[0,0] # scalar product
+  bk = (np.conjugate(v).T)@v # scalar product
+  bk1 = (np.conjugate(a).T)@v # scalar product
   
   mus[0] = bk.copy()  # mu0
   mus[1] = bk1.copy() # mu1
   for i in range(1,n): 
-    ap = 2*m*a - am # recursion relation
-    bk = (np.transpose(np.conjugate(a))*a)[0,0] # scalar product
-    bk1 = (np.transpose(np.conjugate(ap))*a)[0,0] # scalar product
+    ap = 2*m@a - am # recursion relation
+    bk = (np.conjugate(a).T)@a # scalar product
+    bk1 = (np.conjugate(ap).T)@a # scalar product
     mus[2*i] = 2.*bk
     mus[2*i+1] = 2.*bk1
     am = a.copy() # new variables
@@ -55,7 +57,7 @@ def python_kpm_moments(v,m,n=100):
   mu0 = mus[0] # first
   mu1 = mus[1] # second
   for i in range(1,n): 
-    mus[2*i] +=  - mu0
+    mus[2*i] += -mu0
     mus[2*i+1] += -mu1 
   return mus
 
@@ -185,20 +187,18 @@ def full_trace(m_in,n=200,use_fortran=use_fortran):
 
 
 
-
-def local_dos(m_in,i=0,n=200,use_fortran=use_fortran):
-  """ Calculates local DOS using the KPM"""
-  m = csc(m_in) # saprse matrix
+def get_moments_ldos(m_in,i=0,n=200,scale=1.0,**kwargs):
+  """ Calculates the moments for the local DOS using the KPM"""
+  m = csc(m_in)/scale # sparse matrix
   nd = m.shape[0] # length of the matrix
-  mus = np.array([0.0j for j in range(2*n)])
   v = rand.random(nd)*0.
   v[i] = 1.0 # vector only in site i 
   v = csc(v).transpose()
 # get the chebychev moments
-  mus += get_moments(v,m,n=n,use_fortran=use_fortran) 
+  mus = get_moments(v,m,n=n,**kwargs) 
   return mus
 
-
+local_dos = get_moments_ldos
 
 def ldos0d(m_in,i=0,scale=10.,npol=None,ne=500,kernel="jackson"):
   """Return two arrays with energies and local DOS"""
@@ -244,7 +244,7 @@ def random_trace(m_in,ntries=20,n=200,fun=None):
     v0 = fun()
     if len(v0) != m_in.shape[0]: raise
   if fun is None:
-#    def fun(): return rand.random(nd) -.5 + 1j*rand.random(nd) -.5j
+    def fun(): return rand.random(nd) -.5 + 1j*rand.random(nd) -.5j
     def fun(): return rand.random(nd) - 0.5
   m = csc(m_in) # saprse matrix
   nd = m.shape[0] # length of the matrix
